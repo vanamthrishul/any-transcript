@@ -269,6 +269,11 @@ def run_url_job(job_id: str, url: str, model_size: str, language: Optional[str])
         "no_warnings": True,
         "progress_hooks": [hook],
         "socket_timeout": 30,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web_safari", "ios"],
+            }
+        },
     }
     if _FFMPEG_DIR:
         ydl_opts["ffmpeg_location"] = _FFMPEG_DIR
