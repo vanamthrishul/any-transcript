@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Any Transcript</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2f3a;
+    --text: #e8eaf0;
+    --muted: #8b90a0;
+    --accent: #6c8cff;
+    --accent-hover: #7f9dff;
+    --danger: #ff6b6b;
+    --success: #4fd18b;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+  header { margin-bottom: 28px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .tab-btn.active { color: var(--text); border-color: var(--accent); background: #1c2030; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  input[type=text], select {
+    width: 100%;
+    padding: 12px 14px;
+    background: #0f1218;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+  }
+  input[type=text]:focus, select:focus { outline: none; border-color: var(--accent); }
+
+  .row { display: flex; gap: 10px; margin-top: 12px; }
+  .row > * { flex: 1; }
+
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .dropzone.drag { border-color: var(--accent); color: var(--text); }
+  .dropzone input { display: none; }
+  #file-name { margin-top: 8px; font-size: 13px; color: var(--text); }
+
+  .opts { display: flex; gap: 10px; margin-top: 14px; }
+  .opts label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .opts > div { flex: 1; }
+
+  button.primary {
+    margin-top: 16px;
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #0b0d12;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  button.primary:disabled { opacity: .5; cursor: not-allowed; }
+
+  .status-box { margin-top: 20px; display: none; }
+  .status-box.show { display: block; }
+  .status-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { height: 8px; background: #0f1218; border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width .3s; }
+
+  .error-box { margin-top: 16px; padding: 12px 14px; background: #2a1416; border: 1px solid var(--danger); border-radius: var(--radius); color: var(--danger); font-size: 13px; display: none; }
+  .error-box.show { display: block; }
+
+  .result { margin-top: 24px; display: none; }
+  .result.show { display: block; }
+  .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .result-header h2 { font-size: 15px; margin: 0; color: var(--success); }
+  .actions { display: flex; gap: 8px; }
+  .actions button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .actions button:hover { border-color: var(--accent); }
+  textarea {
+    width: 100%;
+    min-height: 260px;
+    background: #0f1218;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+  }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Any Transcript</h1>
+    <p class="sub">Paste a video link or upload a file. Transcription runs with Whisper, free and with no API key.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="link">Video link</button>
+    <button class="tab-btn" data-tab="file">Upload file</button>
+  </div>
+
+  <div class="panel">
+    <div class="tab-content active" id="tab-link">
+      <input type="text" id="url-input" placeholder="https://www.youtube.com/watch?v=... (YouTube, Instagram, TikTok, X, Vimeo, and more)" />
+    </div>
+
+    <div class="tab-content" id="tab-file">
+      <div class="dropzone" id="dropzone">
+        <div>Click to choose, or drag & drop a video/audio file</div>
+        <div id="file-name"></div>
+        <input type="file" id="file-input" accept="video/*,audio/*" />
+      </div>
+    </div>
+
+    <div class="opts">
+      <div>
+        <label>Model (bigger = more accurate, slower)</label>
+        <select id="model-size">
+          <option value="tiny">tiny (fastest)</option>
+          <option value="base" selected>base (recommended)</option>
+          <option value="small">small (slower, more accurate)</option>
+          <option value="medium">medium (slowest, most accurate)</option>
+        </select>
+      </div>
+      <div>
+        <label>Language</label>
+        <select id="language">
+          <option value="">Auto-detect</option>
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="hi">Hindi</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+          <option value="ar">Arabic</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="primary" id="submit-btn">Transcribe</button>
+
+    <div class="status-box" id="status-box">
+      <div class="status-line"><span id="status-text">Working...</span><span id="status-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-header">
+      <h2>Transcript ready (detected language: <span id="detected-lang"></span>)</h2>
+      <div class="actions">
+        <button id="copy-btn">Copy</button>
+        <button id="download-txt">Download .txt</button>
+        <button id="download-srt">Download .srt</button>
+      </div>
+    </div>
+    <textarea id="transcript-text" readonly></textarea>
+  </div>
+
+  <footer>Runs entirely on your machine. Larger videos and bigger models take longer on CPU.</footer>
+</div>
+
+<script>
+let activeTab = "link";
+let selectedFile = null;
+let currentJobId = null;
+let pollTimer = null;
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    activeTab = btn.dataset.tab;
+    document.getElementById("tab-" + activeTab).classList.add("active");
+  });
+});
+
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("file-input");
+dropzone.addEventListener("click", () => fileInput.click());
+dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
+dropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropzone.classList.remove("drag");
+  if (e.dataTransfer.files.length) {
+    selectedFile = e.dataTransfer.files[0];
+    document.getElementById("file-name").textContent = selectedFile.name;
+  }
+});
+fileInput.addEventListener("change", () => {
+  if (fileInput.files.length) {
+    selectedFile = fileInput.files[0];
+    document.getElementById("file-name").textContent = selectedFile.name;
+  }
+});
+
+function resetUI() {
+  document.getElementById("error-box").classList.remove("show");
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("status-box").classList.add("show");
+  document.getElementById("progress-fill").style.width = "0%";
+  document.getElementById("status-pct").textContent = "0%";
+  document.getElementById("status-text").textContent = "Starting...";
+}
+
+function showError(msg) {
+  document.getElementById("status-box").classList.remove("show");
+  const box = document.getElementById("error-box");
+  box.textContent = msg;
+  box.classList.add("show");
+  document.getElementById("submit-btn").disabled = false;
+}
+
+async function pollStatus() {
+  try {
+    const res = await fetch(`/api/status/${currentJobId}`);
+    if (!res.ok) throw new Error("Lost track of this job.");
+    const job = await res.json();
+
+    document.getElementById("status-text").textContent = job.message || job.status;
+    document.getElementById("status-pct").textContent = job.progress + "%";
+    document.getElementById("progress-fill").style.width = job.progress + "%";
+
+    if (job.status === "done") {
+      clearInterval(pollTimer);
+      document.getElementById("status-box").classList.remove("show");
+      document.getElementById("transcript-text").value = job.text;
+      document.getElementById("detected-lang").textContent = job.language || "unknown";
+      document.getElementById("result").classList.add("show");
+      document.getElementById("submit-btn").disabled = false;
+    } else if (job.status === "error") {
+      clearInterval(pollTimer);
+      showError(job.error || "Something went wrong.");
+    }
+  } catch (e) {
+    clearInterval(pollTimer);
+    showError(e.message);
+  }
+}
+
+document.getElementById("submit-btn").addEventListener("click", async () => {
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  resetUI();
+
+  const modelSize = document.getElementById("model-size").value;
+  const language = document.getElementById("language").value;
+
+  try {
+    let res;
+    if (activeTab === "link") {
+      const url = document.getElementById("url-input").value.trim();
+      if (!url) { showError("Please paste a video link."); return; }
+      res = await fetch("/api/transcribe/url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, model_size: modelSize, language })
+      });
+    } else {
+      if (!selectedFile) { showError("Please choose a file first."); return; }
+      const form = new FormData();
+      form.append("file", selectedFile);
+      form.append("model_size", modelSize);
+      form.append("language", language);
+      res = await fetch("/api/transcribe/file", { method: "POST", body: form });
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Request failed.");
+    }
+    const data = await res.json();
+    currentJobId = data.job_id;
+    pollTimer = setInterval(pollStatus, 1200);
+  } catch (e) {
+    showError(e.message);
+  }
+});
+
+document.getElementById("copy-btn").addEventListener("click", () => {
+  const ta = document.getElementById("transcript-text");
+  ta.select();
+  navigator.clipboard.writeText(ta.value);
+});
+
+document.getElementById("download-txt").addEventListener("click", () => {
+  window.location.href = `/api/download/${currentJobId}?fmt=txt`;
+});
+document.getElementById("download-srt").addEventListener("click", () => {
+  window.location.href = `/api/download/${currentJobId}?fmt=srt`;
+});
+</script>
+</body>
+</html>
