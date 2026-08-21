@@ -129,14 +129,12 @@ intentionally as a backup, not deleted.
 - **2026-08-21 (final: local-only)**: User decided to drop cloud hosting
   entirely. Removed `Dockerfile`, `.dockerignore`, and the cookies-file
   lookup code from transcriber.py. Rewrote README.md and this file for a
-  local-only tool. GitHub repo kept as a backup, Render service to be
-  deleted manually by the user (dashboard access needed, not available to
-  this session).
+  local-only tool. GitHub repo kept as a backup. Cleanup pushed to GitHub
+  (commit `e4a654e`). User confirmed the Render service itself was deleted
+  from the dashboard. Cloud-hosting chapter fully closed out.
 
 ## Open items / next session should pick up here
 
-- [ ] Confirm the user actually deleted the Render service (I gave manual
-      steps but can't verify from here — no Render API/CLI access).
-- [ ] Push these cleanup changes to the GitHub repo so it reflects the
-      current local-only state (confirm with user first since it's a push
-      to a third-party service, even though they've approved pushes before).
+None outstanding. Project is local-only, working, and documented. If
+"usable from anywhere" comes up again in a future session, read the "Why
+local-only" section above first before re-proposing cloud hosting.
