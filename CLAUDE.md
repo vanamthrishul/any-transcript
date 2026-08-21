@@ -110,6 +110,24 @@ picked Render first.
      user to create the HF Space.
   - Also removed em dashes from UI copy per user preference.
 
+## Cookies (needed for YouTube AND Instagram, likely others too)
+
+Not just a YouTube problem: Instagram also rate-limits/redirects anonymous
+cloud-IP requests to its login page (`"You have exceeded the rate-limit for
+accessing posts anonymously"`), same root cause as YouTube's bot check, same
+fix. The cookie mechanism in transcriber.py (`_find_cookies_file()`) is
+already generic, it applies whatever cookies.txt it finds to every
+extraction, not just YouTube-flagged ones, since a single Netscape cookies
+file can carry cookies for multiple domains at once (yt-dlp filters by
+domain internally). Looks for, in order: `YTDLP_COOKIES_FILE` env var,
+`/etc/secrets/cookies.txt`, then `/etc/secrets/youtube_cookies.txt` (back-compat
+with the original YouTube-only setup). User should export cookies while
+logged into *both* youtube.com and instagram.com (most export extensions
+support exporting the whole cookie jar at once) and upload as one Render
+Secret File named `cookies.txt`. Untested so far: TikTok, X/Twitter - likely
+same story given both have tightened anonymous access recently, but don't
+claim this without testing when it comes up.
+
 ## Progress log (continued)
 
 - **2026-08-21 (pivot)**: User hit a paywall — HF now requires PRO for
