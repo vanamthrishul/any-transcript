@@ -108,26 +108,6 @@ if _FFMPEG_DIR and _FFMPEG_DIR not in os.environ.get("PATH", ""):
     os.environ["PATH"] = _FFMPEG_DIR + os.pathsep + os.environ.get("PATH", "")
 
 
-def _find_cookies_file() -> Optional[str]:
-    # A single Netscape-format cookies.txt can hold cookies for multiple
-    # domains (youtube.com, instagram.com, etc.) - yt-dlp picks the ones
-    # relevant to whatever URL it's fetching. Cloud IPs (Render, etc.) get
-    # rate-limited/redirected to login by several sites when anonymous, so
-    # this is applied to every extraction, not just YouTube.
-    candidates = [
-        os.environ.get("YTDLP_COOKIES_FILE"),
-        "/etc/secrets/cookies.txt",
-        "/etc/secrets/youtube_cookies.txt",  # back-compat with the earlier setup
-    ]
-    for candidate in candidates:
-        if candidate and os.path.isfile(candidate):
-            return candidate
-    return None
-
-
-_COOKIES_FILE = _find_cookies_file()
-
-
 def _detect_device_and_compute_type():
     try:
         import ctranslate2
@@ -297,8 +277,6 @@ def run_url_job(job_id: str, url: str, model_size: str, language: Optional[str])
     }
     if _FFMPEG_DIR:
         ydl_opts["ffmpeg_location"] = _FFMPEG_DIR
-    if _COOKIES_FILE:
-        ydl_opts["cookiefile"] = _COOKIES_FILE
 
     try:
         with _processing_lock:

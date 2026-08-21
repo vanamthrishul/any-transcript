@@ -5,30 +5,28 @@ via `yt-dlp`) or upload a video/audio file, and get a formatted, timestamped
 transcript back. Transcription runs on Whisper (`faster-whisper`), free and
 with no API key.
 
-## Run locally (Windows)
+Runs locally on your own machine and your own internet connection, which
+matters: YouTube and Instagram both rate-limit/block anonymous requests from
+cloud/datacenter IPs, but not from a normal home connection, so running it
+here avoids that entirely with no extra setup (no cookies, no accounts).
+
+## Setup (Windows)
+
+Requires a dedicated Python 3.12 virtual environment (`venv/`) and ffmpeg,
+both already set up in this project. If setting up fresh on another machine:
+
+```
+py -3.12 -m venv venv
+venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+ffmpeg must also be installed and on PATH (e.g. `winget install Gyan.FFmpeg`).
+
+## Run it
 
 ```
 powershell -ExecutionPolicy Bypass -File run.ps1
 ```
 
-Then open http://127.0.0.1:8000.
-
-## Deploy for free so you can use it from any device
-
-This repo's `Dockerfile` is set up to deploy as-is to [Render](https://render.com)'s
-free Web Service tier: permanent public URL, works from your phone, no credit
-card required to start.
-
-1. Push this repo to a GitHub repository.
-2. On Render, create a **New Web Service**, connect that GitHub repo. Render
-   detects the `Dockerfile` automatically.
-3. Choose the **Free** instance type, and deploy.
-4. First build takes a few minutes (it pre-downloads the `tiny` and `base`
-   Whisper models). After that, your transcript tool is live at
-   `https://<your-service-name>.onrender.com`.
-
-Render's free tier spins the service down after 15 minutes of no traffic and
-takes about a minute to wake back up on the next request, that's normal, not
-a bug. RAM is limited on the free tier, so stick to `tiny`/`base` models there
-(`small`/`medium` risk running out of memory); the app also only runs one
-transcription at a time so multiple requests don't compete for RAM.
+Then open http://127.0.0.1:8000, paste a link or upload a file, pick a model
+size, and transcribe.
