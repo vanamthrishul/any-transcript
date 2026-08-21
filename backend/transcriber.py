@@ -108,6 +108,14 @@ if _FFMPEG_DIR and _FFMPEG_DIR not in os.environ.get("PATH", ""):
     os.environ["PATH"] = _FFMPEG_DIR + os.pathsep + os.environ.get("PATH", "")
 
 
+def _find_youtube_cookies_file() -> Optional[str]:
+    candidate = os.environ.get("YTDLP_COOKIES_FILE") or "/etc/secrets/youtube_cookies.txt"
+    return candidate if os.path.isfile(candidate) else None
+
+
+_YT_COOKIES_FILE = _find_youtube_cookies_file()
+
+
 def _detect_device_and_compute_type():
     try:
         import ctranslate2
@@ -277,6 +285,8 @@ def run_url_job(job_id: str, url: str, model_size: str, language: Optional[str])
     }
     if _FFMPEG_DIR:
         ydl_opts["ffmpeg_location"] = _FFMPEG_DIR
+    if _YT_COOKIES_FILE:
+        ydl_opts["cookiefile"] = _YT_COOKIES_FILE
 
     try:
         with _processing_lock:
